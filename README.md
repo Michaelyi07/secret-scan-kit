@@ -8,7 +8,7 @@ across the four top-level directories: `backend/`, `web/`, `miniprogram/`, `infr
 | File | Purpose |
 | --- | --- |
 | `.pre-commit-config.yaml` | pre-commit gate: gitleaks (custom rules), detect-private-key, check-added-large-files (2 MB limit) |
-| `.gitleaks.toml` | Custom rule families: ① LTAI AccessKeys + paired secrets ② JWT signing key fields ③ WeCom/Feishu app secrets ④ PEM private keys ⑤ database DSN password segments. Allowlist covers only dummy values under `tests/fixtures/`, each with a reason comment |
+| `.gitleaks.toml` | Custom rule families: ① LTAI AccessKeys + paired secrets ② JWT signing key fields ③ WeCom/Feishu app secrets ④ PEM private keys ⑤ database DSN password segments. Allowlist covers only fabricated dummy values (the `tests/fixtures/` dummies and the demo key quoted by verification evidence), each with a reason comment |
 | `.github/workflows/secret-scan.yml` | CI gate: gitleaks on every PR (all commits in the current PR) and every push to main; weekly scheduled full-history scan stored as an artifact; leak ⇒ job fails; Job Summary shows only file path, line number and rule name — never the secret |
 | `scripts/gitleaks_summary.py` | Builds the redacted Job Summary from the gitleaks JSON report (field-limited output) |
 | `docs/secret-leak-runbook.md` | Incident response: rotate in KMS → revoke cloud AccessKey → clean history with git filter-repo + force re-clone → log & notify |
@@ -46,5 +46,6 @@ gitleaks detect --source . --config .gitleaks.toml --redact \
 ## Security notes
 
 - All values in this bundle are fabricated; no real credentials anywhere.
-- The allowlist may only ever contain obvious dummy values under `tests/fixtures/`; each entry must keep its reason comment.
+- The allowlist may only ever contain fabricated dummy values (test fixtures
+  and the demo key quoted by verification evidence); each entry must keep its reason comment.
 - Scanning output is always generated with `--redact`; the summary script additionally never reads the secret field.

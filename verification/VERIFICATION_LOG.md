@@ -78,6 +78,10 @@ Findings: 1 (secret content is redacted and never displayed)
 
 Verification: `grep -c "LTAI5t9XkQ8mDeAdDuCk42Id" job_summary.md` → **0 hits**;
 `grep -c "REDACTED"` → 0 (summary contains only rule id, path, line, description).
+Additionally verified against the JSON report itself (the artifact CI uploads):
+`grep -c "LTAI5t9XkQ8mDeAdDuCk42Id" leaks.json` → **0 hits** — `--redact`
+rewrites the `Secret`/`Match` fields to REDACTED and empties the `Line` field
+before the report is written, so no raw key material reaches the artifact.
 Screenshot: `screenshots/screenshot_3_job_summary.png`
 
 ## §4 — Acceptance #3: dummy values under tests/fixtures do not fail
@@ -88,12 +92,23 @@ exact-value allowlist entry with a reason comment in `.gitleaks.toml`):
 
 ```text
 $ gitleaks detect --source . --config .gitleaks.toml --redact
-8:25PM INF 1 commits scanned.
-8:25PM INF scan completed in 194ms
-8:25PM INF no leaks found
+9:30PM INF 1 commits scanned.
+9:30PM INF scan completed in 160ms
+9:30PM INF no leaks found
 ```
 
-Exit code: **0** — no findings triggered by the fixtures.
+Exit code: **0** — no findings triggered by the fixtures, and the repo as a
+whole (including this verification log, which quotes the demo key) passes its
+own scan gate.
+
+Re-audit note (2026-11-16): an independent knowledge-extraction + audit pass
+found that quoting the demo key `LTAI5t9XkQ8mDeAdDuCk42Id` in this log made
+the repo fail its own scan (3 findings) — the earlier §4 record predates that
+log content and was inaccurate. Fixed by adding the demo key to the allowlist
+with a reason comment (and correcting the DSN allowlist entry to the
+`@`-truncated form the rule actually extracts); the scan above is the
+post-fix real output. The allowlist still covers only fabricated dummy
+values, each with a reason.
 
 ## §5 — Acceptance #4: runbook contains the four required steps
 
@@ -107,12 +122,12 @@ notify responsible party, plus a quick-response checklist.
 
 ```text
 .pre-commit-config.yaml            ee50b2204e46f84729429e2933d2d6036a5fd4011fa1e965fa3671a55b95311b
-.gitleaks.toml                     d6d6f6381c81158aac5ef04d8e6643935580a4b526b992c036b0383121347800
-.github/workflows/secret-scan.yml  4bc26e5fb2b93db1f594855dc3603d17ddbddd0191b441bca86d863f5991e9e0
+.gitleaks.toml                     200e7bfc64ef5221c232584d1a348f5c609a02d8ddc1e861950b1fcc4b7cf1ce
+.github/workflows/secret-scan.yml  133db3390c594d3a062246b442e06487ab3339e3e53e9282349ee300a7f45321
 scripts/gitleaks_summary.py        3330475e4aac92efbedeb52c713cf7306524958e18aa8b7e60dad52e2aaab6eb
 docs/secret-leak-runbook.md        7e2c6c1696d2ced53896932794f0eb0420c56c0d944f17634d56d4eeb113dffe
 tests/fixtures/dummy_keys.py       51733309f23950d8f9e33e8f9ea4bb72dee9073262902859ea3b17e856133dd5
-README.md                          d5c685accd7f5c3a2fbbd4bcecabf22ac2ce452f3ce6dca975831e62252253e5
+README.md                          f29d3cf56117e5b553ebcc93875569d5e47ff509f5bda4fe429e7d452ad02726
 ```
 
 ## Reproduce

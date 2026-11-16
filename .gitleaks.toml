@@ -79,5 +79,7 @@ regexes = [
   # reason: fabricated Feishu app secret used by unit tests (tests/fixtures/dummy_keys.py)
   '''feishu-dummy-secret-DEADDUCK00000''',
   # reason: fabricated DSN with dummy password used by unit tests (tests/fixtures/dummy_keys.py)
-  '''postgresql://ci_user:dummy_pg_pw_deadduck@127\.0\.0\.1:5432/ci_db''',
+  '''postgresql://ci_user:dummy_pg_pw_deadduck@''',
+  # reason: fabricated demo key quoted by verification evidence (verification/VERIFICATION_LOG.md)
+  '''LTAI5t9XkQ8mDeAdDuCk42Id''',
 ]
