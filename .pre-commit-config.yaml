@@ -1,0 +1,21 @@
+# .pre-commit-config.yaml — Member Space Platform · secret-leak pre-commit gate
+# Install: pip install pre-commit && pre-commit install
+# Run on all files: pre-commit run --all-files
+
+repos:
+  # 1) gitleaks — custom rules live in .gitleaks.toml (LTAI keys, JWT signing
+  #    fields, WeCom/Feishu secrets, PEM keys, DSN passwords)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        args: ["--config", ".gitleaks.toml", "--redact"]
+
+  # 2) detect-private-key — catches PEM private keys staged for commit
+  # 3) check-added-large-files — blocks files larger than 2 MB (2048 KB)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=2048"]

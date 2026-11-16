@@ -1,0 +1,83 @@
+# .gitleaks.toml — Member Space Platform · secret-leak scanning rules
+# Covers: backend/ web/ miniprogram/ infra/
+# Rule families: 1) Alibaba Cloud AccessKey (LTAI)  2) JWT signing keys
+#                3) WeCom / Feishu app secrets      4) PEM private keys
+#                5) Database DSN password segments
+# Allowlist: ONLY obvious dummy values under tests/fixtures/, each with a reason comment.
+
+title = "Member Space Platform secret-leak rules"
+
+# ---------------------------------------------------------------- rule 1
+[[rules]]
+id = "aliyun-access-key-id"
+description = "Alibaba Cloud AccessKey ID (LTAI prefix)"
+regex = '''\bLTAI[0-9A-Za-z]{10,28}\b'''
+keywords = ["ltai"]
+tags = ["cloud", "accesskey"]
+
+[[rules]]
+id = "aliyun-access-key-secret"
+description = "Alibaba Cloud AccessKey Secret assignment (paired-secret field)"
+regex = '''(?i)["']?access[_-]?key[_-]?secret["']?\s*[:=]\s*["']?[A-Za-z0-9/+=]{16,64}'''
+keywords = ["access_key_secret", "access-key-secret", "accesskeysecret"]
+tags = ["cloud", "accesskey"]
+
+# ---------------------------------------------------------------- rule 2
+[[rules]]
+id = "jwt-signing-key-field"
+description = "JWT signing key / secret field name with assigned value"
+regex = '''(?i)["']?(?:jwt|signing)[_-]?(?:secret|key|signing[_-]?key)["']?\s*[:=]\s*["'][^"'\r\n]{8,}["']'''
+keywords = ["jwt", "signing_secret", "signing_key"]
+tags = ["auth", "jwt"]
+
+# ---------------------------------------------------------------- rule 3
+[[rules]]
+id = "wecom-app-secret"
+description = "WeCom (WeChat Work) corp/app secret field"
+regex = '''(?i)["']?(?:wecom|wechat[_-]?work|weixin[_-]?work|qyapi|corpsecret)[_-]?(?:app|corp)?[_-]?secret["']?\s*[:=]\s*["'][^"'\r\n]{8,}["']'''
+keywords = ["wecom", "wechat_work", "corpsecret", "qyapi"]
+tags = ["app-secret", "wecom"]
+
+[[rules]]
+id = "feishu-app-secret"
+description = "Feishu / Lark app secret field"
+regex = '''(?i)["']?(?:feishu|lark)[_-]?(?:app)?[_-]?secret["']?\s*[:=]\s*["'][^"'\r\n]{8,}["']'''
+keywords = ["feishu", "lark"]
+tags = ["app-secret", "feishu"]
+
+# ---------------------------------------------------------------- rule 4
+[[rules]]
+id = "pem-private-key"
+description = "PEM private key block header"
+regex = '''-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY(?: BLOCK)?-----'''
+keywords = ["private key"]
+tags = ["key", "pem"]
+
+# ---------------------------------------------------------------- rule 5
+[[rules]]
+id = "database-dsn-password"
+description = "Password segment embedded in a database/queue connection string"
+regex = '''(?i)\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis|amqp|mssql)://[^:/\s"'@]+:[^@/\s"']{4,}@'''
+keywords = ["postgres", "postgresql", "mysql", "mongodb", "redis", "amqp", "mssql"]
+tags = ["database", "dsn"]
+
+# ---------------------------------------------------------- allowlist
+# Scope: ONLY fabricated dummy values under tests/fixtures/. Each entry states
+# its reason. Nothing outside tests/fixtures/ may ever be added here.
+[allowlist]
+description = "Obvious dummy values under tests/fixtures (each with a reason)"
+paths = '''(^|/)tests/fixtures/'''
+regexes = [
+  # reason: fabricated AccessKey ID used by leak-scanner unit tests (tests/fixtures/dummy_keys.py)
+  '''LTAI000000000000DEADDUCK''',
+  # reason: fabricated AccessKey Secret value used by unit tests (tests/fixtures/dummy_keys.py)
+  '''DeAdDuCkSeCrEt00000000000000fake''',
+  # reason: fabricated JWT signing secret used by unit tests (tests/fixtures/dummy_keys.py)
+  '''jwt-signing-dummy-DO-NOT-USE-000000''',
+  # reason: fabricated WeCom app secret used by unit tests (tests/fixtures/dummy_keys.py)
+  '''wecom-dummy-secret-DEADDUCK000000''',
+  # reason: fabricated Feishu app secret used by unit tests (tests/fixtures/dummy_keys.py)
+  '''feishu-dummy-secret-DEADDUCK00000''',
+  # reason: fabricated DSN with dummy password used by unit tests (tests/fixtures/dummy_keys.py)
+  '''postgresql://ci_user:dummy_pg_pw_deadduck@127\.0\.0\.1:5432/ci_db''',
+]
