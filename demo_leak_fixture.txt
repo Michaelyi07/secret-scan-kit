@@ -1,0 +1,2 @@
+DEMO FIXTURE - fabricated key, NOT in allowlist, used only to prove the CI gate fails closed.
+DEMO_ACCESS_KEY_ID = "LTAI000000000000TESTDUCK"
