@@ -1,5 +1,15 @@
 # secret-scan-kit — Secret Leakage Protection (pre-commit + CI gate)
 
+> **Delivery pin:** repo pinned at commit `76952af` (main, pushed 2026-11-17). All acceptance
+> criteria are verified in **real GitHub Actions runs**: full-history scan on main PASSED
+> ([run 43986619830](https://github.com/Michaelyi07/secret-scan-kit/actions/runs/43986619830));
+> a demo PR with a fabricated, non-allowlisted LTAI key was rejected by CI, `leaks found: 1`
+> ([run 43994209820](https://github.com/Michaelyi07/secret-scan-kit/actions/runs/43994209820),
+> closed without merging). CI needs the checksum-verify fix included in `76952af` - do not
+> revert to earlier commits.
+
+Static configuration & workflow bundle for gitleaks-based secret-leak scanning
+across the four top-level directories: `backend/`, `web/`, `miniprogram/`, `infra/`.
 Static configuration & workflow bundle for gitleaks-based secret-leak scanning
 across the four top-level directories: `backend/`, `web/`, `miniprogram/`, `infra/`.
 
