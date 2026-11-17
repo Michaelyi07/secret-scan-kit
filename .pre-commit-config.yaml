@@ -1,4 +1,4 @@
-# .pre-commit-config.yaml — Member Space Platform · secret-leak pre-commit gate
+# .pre-commit-config.yaml - secret-leak pre-commit gate (template project)
 # Install: pip install pre-commit && pre-commit install
 # Run on all files: pre-commit run --all-files
 
